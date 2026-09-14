@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-
 struct ContentView: View {
-    // Khai báo biến thông tin cá nhân của bạn
-    let name = "LyhoangKimNgoc"
-    let studentID = "SESEIU220"
-    let message = "Hello world! My iOS journey starts today!"
+    
+    let name = "Ly Hoang Kim Ngoc"
+    let studentID = "SESEIU22034"
+    let major = "Space Engineering"
     
     var body: some View {
         VStack(spacing: 16) {
-            Text("Hello, Swift!")
+            
+            Text("Hello, Swift! 👋")
                 .font(.largeTitle)
                 .bold()
             
@@ -26,13 +26,12 @@ struct ContentView: View {
             Text("Student ID: \(studentID)")
                 .font(.title3)
             
-            Text("\(message)")
+            Text("Major: \(major)")
+                .font(.body)
+            
+            Text("My iOS journey starts today! 🚀")
                 .font(.title3)
         }
         .padding()
     }
-}
-
-#Preview {
-    ContentView()
 }
