@@ -1,1 +1,165 @@
+import SwiftUI
+
+@main
+struct NumberCalculatorApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+
+struct ContentView: View {
+    @State private var inputN = ""
+    @State private var result = ""
+    @FocusState private var inputIsFocused: Bool
+
+    // Button colors requested for the final interface.
+    private let blue = Color(red: 0.18, green: 0.48, blue: 0.95)
+    private let lightYellow = Color(red: 0.98, green: 0.83, blue: 0.43)
+    private let mint = Color(red: 0.30, green: 0.78, blue: 0.58)
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("Number Calculator")
+                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .foregroundStyle(Color(red: 0.08, green: 0.20, blue: 0.45))
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Enter n:")
+                    .font(.system(size: 20, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Color(red: 0.08, green: 0.20, blue: 0.45))
+
+                TextField("Enter a number", text: $inputN)
+                    .textFieldStyle(.roundedBorder)
+                    // This also allows the negative test value shown in the slides.
+                    .keyboardType(.numbersAndPunctuation)
+                    .focused($inputIsFocused)
+                    .submitLabel(.done)
+            }
+
+            VStack(spacing: 12) {
+                calculatorButton(
+                    title: "Calculate n²",
+                    backgroundColor: blue,
+                    titleColor: .white
+                ) {
+                    calculateSquare()
+                }
+
+                calculatorButton(
+                    title: "Calculate n³",
+                    backgroundColor: lightYellow,
+                    titleColor: Color(red: 0.15, green: 0.18, blue: 0.25)
+                ) {
+                    calculateCube()
+                }
+
+                calculatorButton(
+                    title: "Double n",
+                    backgroundColor: mint,
+                    titleColor: .white
+                ) {
+                    doubleNumber()
+                }
+            }
+
+            Text(result.isEmpty ? "Result:" : "Result: \(result)")
+                .font(.system(size: 24, weight: .semibold, design: .rounded))
+                .foregroundStyle(resultIsError ? .red : Color(red: 0.08, green: 0.20, blue: 0.45))
+                .multilineTextAlignment(.center)
+                .frame(minHeight: 34)
+                .padding(.top, 4)
+        }
+        .padding(24)
+        .frame(maxWidth: 520)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            inputIsFocused = false
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    inputIsFocused = false
+                }
+            }
+        }
+    }
+
+    private var resultIsError: Bool {
+        result == "Please enter a valid number." || result == "Number is too large."
+    }
+
+    @ViewBuilder
+    private func calculatorButton(
+        title: String,
+        backgroundColor: Color,
+        titleColor: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 19, weight: .semibold, design: .rounded))
+                .foregroundStyle(titleColor)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(backgroundColor)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func readInput() -> Int64? {
+        let cleanedInput = inputN.trimmingCharacters(in: .whitespacesAndNewlines)
+        return Int64(cleanedInput)
+    }
+
+    private func calculateSquare() {
+        guard let number = readInput() else {
+            showInvalidInput()
+            return
+        }
+
+        let (value, overflow) = number.multipliedReportingOverflow(by: number)
+        result = overflow ? "Number is too large." : "\(value)"
+        inputIsFocused = false
+    }
+
+    private func calculateCube() {
+        guard let number = readInput() else {
+            showInvalidInput()
+            return
+        }
+
+        let (square, squareOverflow) = number.multipliedReportingOverflow(by: number)
+        let (value, cubeOverflow) = square.multipliedReportingOverflow(by: number)
+        let overflow = squareOverflow || cubeOverflow
+
+        result = overflow ? "Number is too large." : "\(value)"
+        inputIsFocused = false
+    }
+
+    private func doubleNumber() {
+        guard let number = readInput() else {
+            showInvalidInput()
+            return
+        }
+
+        let (value, overflow) = number.multipliedReportingOverflow(by: 2)
+        result = overflow ? "Number is too large." : "\(value)"
+        inputIsFocused = false
+    }
+
+    private func showInvalidInput() {
+        result = "Please enter a valid number."
+        inputIsFocused = false
+    }
+}
+
+#Preview {
+    ContentView()
+}
 
